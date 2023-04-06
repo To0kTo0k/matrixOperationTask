@@ -1,95 +1,85 @@
 package org.example.handling;
 
 import lombok.Getter;
-import org.example.dto.MatrixDto;
+import lombok.Setter;
 
 import java.util.Scanner;
 
 @Getter
+@Setter
 public class MatrixOperations {
+    private int width;
+    private int length;
+    private int[][] matrix;
 
-    MatrixDto dto = new MatrixDto();
-
-    public void initMatrix() {
-        inMatrixLength();
-        inMatrixWidth();
-        inMatrix();
+    public MatrixOperations() {
+        inputMatrixLength();
+        inputMatrixWidth();
+        inputMatrix(getLength(), getWidth());
     }
 
-    private void inMatrixLength() {
+    private void inputMatrixLength() {
         System.out.println("Input matrix length:");
         Scanner in = new Scanner(System.in);
-        dto.setLength(in.nextInt());
-        System.out.println("Length is " + dto.getLength());
+        setLength(in.nextInt());
+        System.out.println("Length is " + getLength());
     }
 
-    private void inMatrixWidth() {
+    private void inputMatrixWidth() {
         System.out.println("Input matrix width:");
         Scanner in = new Scanner(System.in);
-        dto.setWidth(in.nextInt());
-        System.out.println("Width is " + dto.getWidth());
+        setWidth(in.nextInt());
+        System.out.println("Width is " + getWidth());
     }
 
-    private void inMatrix() {
-        System.out.println("Input matrix with size [" + dto.getLength() + "][" + dto.getWidth() + "]:");
-        int[][] matrix = new int[dto.getLength()][dto.getWidth()];
+    private void inputMatrix(int length, int width) {
+        System.out.println("Input matrix with size [" + length + "][" + width + "]:");
+        int[][] newMatrix = new int[length][width];
         Scanner in = new Scanner(System.in);
-        for (int i = 0; i < dto.getLength(); i++) {
-            for (int j = 0; j < dto.getWidth(); j++) {
-                matrix[i][j] = in.nextInt();
+        for (int row = 0; row < length; row++) {
+            for (int column = 0; column < width; column++) {
+                newMatrix[row][column] = in.nextInt();
             }
         }
-        dto.setBody(matrix);
+        setMatrix(newMatrix);
     }
 
-    public void outMatrix() {
-        int[][] matrix = dto.getBody();
-        System.out.println("Output matrix with size [" + dto.getLength() + "][" + dto.getWidth() + "]:");
-        for (int i = 0; i < dto.getLength(); i++) {
-            for (int j = 0; j < dto.getWidth(); j++) {
-                System.out.print(matrix[i][j] + " ");
+    public void outputMatrix() {
+        int[][] outputMatrix = getMatrix();
+        System.out.println("Output matrix with size [" + getLength() + "][" + getWidth() + "]:");
+        for (int row = 0; row < getLength(); row++) {
+            for (int column = 0; column < getWidth(); column++) {
+                System.out.print(outputMatrix[row][column] + " ");
             }
             System.out.print("\n");
         }
     }
 
-    public void multiplyMatrix(MatrixDto matrix) {
-        if (isMultipliable(dto, matrix)) {
-            int[][] newMatrix = new int[dto.getLength()][matrix.getWidth()];
-            for (int i = 0; i < dto.getLength(); i++) {
-                for (int j = 0; j < matrix.getWidth(); j++) {
-                    newMatrix[i][j] = multiplyRowAndColumn(j, i, matrix);
+    public void multiplyMatrix(int[][] secondMatrix, int secondMatrixWidth, int secondMatrixLength) {
+        if (isMultipliable(secondMatrixLength)) {
+            int[][] newMatrix = new int[getLength()][getWidth()];
+            for (int row = 0; row < getLength(); row++) {
+                for (int column = 0; column < secondMatrixWidth; column++) {
+                    newMatrix[row][column] = multiplyRowAndColumn(column, row, secondMatrix);
                 }
             }
-            dto.setWidth(matrix.getWidth());
-            dto.setBody(newMatrix);
+            setWidth(secondMatrixWidth);
+            setMatrix(newMatrix);
         } else {
-            throw new RuntimeException("Not multipliable matrixs");
+            throw new IllegalArgumentException("Not multipliable matrixs");
         }
     }
 
-    private boolean isMultipliable(MatrixDto firstMatrix, MatrixDto secondMatrix) {
-        return (firstMatrix.getWidth() == secondMatrix.getLength());
+    private boolean isMultipliable(int secondMatrixLength) {
+        return (getWidth() == secondMatrixLength);
     }
 
-    private int multiplyRowAndColumn(int column, int row, MatrixDto matrixDto) {
-        int[][] firstMatrix = dto.getBody();
-        int[][] secondMatrix = matrixDto.getBody();
-        int sum = 0;
-        for (int i = 0; i < dto.getWidth(); i++) {
-            sum += firstMatrix[row][i] * secondMatrix[i][column];
+    private int multiplyRowAndColumn(int column, int row, int[][] secondMatrix) {
+        int[][] firstMatrix = getMatrix();
+        int rowOnColumnMultiplicationResult = 0;
+        for (int secondMatrixColumn = 0; secondMatrixColumn < getWidth(); secondMatrixColumn++) {
+            rowOnColumnMultiplicationResult += firstMatrix[row][secondMatrixColumn] * secondMatrix[secondMatrixColumn][column];
         }
-        return sum;
-    }
-
-    public void transposeMatrix() {
-        int[][] matrix = dto.getBody();
-        int[][] transposedMatrix = new int[dto.getWidth()][dto.getLength()];
-        for (int i = 0; i < dto.getLength(); i++) {
-            for (int j = 0; j < dto.getWidth(); j++) {
-                transposedMatrix[i][j] = matrix[j][i];
-            }
-        }
-        dto.setBody(transposedMatrix);
+        return rowOnColumnMultiplicationResult;
     }
 }
